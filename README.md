@@ -1,54 +1,32 @@
-# React + TypeScript + Vite
+# Four Slashes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A tool for songwriters and musicians to create and compose chord progressions
+in a simple, accessible, tablet-friendly way: built by and for musicians.
 
-Currently, two official plugins are available:
+Features:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- A beautiful, simple and dynamic chord builder that allows musicians to create
+  and shape chord progressions based upon principles of functional harmony.
 
-## Expanding the ESLint configuration
+- Audio previews and voicings of rendered chords using the
+  `VirtualPianoProvider`: an internal playback engine that simulates the
+  workings of a real piano, such as high quality samples, note attack and decay
+  and pedal effects. It uses the Howl Audio library, which in turn is based
+  on the Web Audio APIs, to efficiently load and playback piano samples in
+  an efficient manner.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- An in-built sequencer hook -- `useSequencer` -- that not only allows chords to
+  be voiced in any possible way, but allows for any kind of sheet music to be
+  sequenced in its own, easy to input sequencing language that is similar to and
+  follows inspiration from the
+  [VexTab Notation Language](https://vexflow.com/vextab/tutorial.html). The
+  sequencer allows you to easily input individual notes and their durations,
+  chords and rests. It can also handle more complex sequencing such as: multiple
+  voicings; linear and non-linear sequencing; the use of ties to
+  combine the duration of two notes of the same pitch and automatic
+  'pedalling' (such that the sustain pedal is automatically applied on every
+  bar, except for such bars where two notes are tied).
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- The in-built sequencer provided by the `useSequencer` hook, combined with the
+  `VirtualPianoProvider` exposes an API that allows you to easily create and
+  play back any kind of piano repertoire in an intuitive and easy to use format.
