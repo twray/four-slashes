@@ -1,17 +1,27 @@
-import { ComponentPropsWithoutRef, type ReactNode } from "react";
-import styled from "styled-components";
+import { ComponentPropsWithoutRef } from "react";
+import styled, { css } from "styled-components";
 import { CornerProperty } from "../types";
 
 type BevelledContainerProps = {
-  children: ReactNode;
   $bevelledCorners?: CornerProperty[];
   $fill?: string;
+  $isActive?: boolean;
 } & ComponentPropsWithoutRef<"div">;
 
-const BevelledContentWrapper = styled.div`
+type BevelledContentWrapperProps = {
+  $isActive?: boolean;
+} & ComponentPropsWithoutRef<"div">;
+
+const BevelledContentWrapper = styled.div<BevelledContentWrapperProps>`
   min-width: 10rem;
   min-height: 2rem;
   filter: drop-shadow(0 0 0.5rem rgba(35, 35, 35, 0.05));
+  ${({ $isActive }) =>
+    $isActive &&
+    css`
+      position: relative;
+      z-index: 10;
+    `}
 `;
 
 const BevelledContent = styled.div<BevelledContainerProps>`
@@ -33,12 +43,25 @@ const BevelledContent = styled.div<BevelledContainerProps>`
     ];
     return $bevelledCorners ? `polygon(${points.join(", ")})` : "none";
   }};
+  transition: transform 0.3s ease-in-out;
+  transform: ${({ $isActive }) => ($isActive ? "scale(1.2)" : "scale(1)")};
 `;
 
-export default function BevelledContainer(props: BevelledContainerProps) {
+export default function BevelledContainer({
+  $bevelledCorners,
+  $fill,
+  $isActive,
+  children,
+}: BevelledContainerProps) {
   return (
-    <BevelledContentWrapper>
-      <BevelledContent {...props} />
+    <BevelledContentWrapper $isActive={$isActive}>
+      <BevelledContent
+        $bevelledCorners={$bevelledCorners}
+        $fill={$fill}
+        $isActive={$isActive}
+      >
+        {children}
+      </BevelledContent>
     </BevelledContentWrapper>
   );
 }

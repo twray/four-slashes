@@ -1,17 +1,20 @@
 import { getLuminance, lighten } from "polished";
 import styled from "styled-components";
+import { useVirtualPiano } from "../context/VirtualPianoProvider";
 import { ChordFunction, CornerProperty } from "../types";
 import BevelledContainer from "./BevelledContainer";
-import { useVirtualPiano } from "../context/VirtualPianoProvider";
+import { isNote } from "../utils/music";
 
 type ChordCardProps = {
   chord: string;
   chordFunction?: ChordFunction;
   progressionIndicators?: Array<"start" | "end">;
+  isActivelyPlaying?: boolean;
 };
 
 type StyledChordCardProps = {
-  $hasDarkBackground: boolean;
+  $hasDarkBackground?: boolean;
+  $isActive?: boolean;
 };
 
 const StyledChordCard = styled.div<StyledChordCardProps>`
@@ -37,6 +40,7 @@ export default function ChordCard({
   chord,
   chordFunction,
   progressionIndicators = [],
+  isActivelyPlaying = false,
 }: ChordCardProps) {
   const { playNote } = useVirtualPiano();
 
@@ -52,7 +56,8 @@ export default function ChordCard({
   const hasDarkBackground = getLuminance(baseColour) < 0.4;
 
   function handleMouseDown() {
-    playNote(`${chord[0]}4`, 2000);
+    const rootNote = chord[0];
+    if (isNote(rootNote)) playNote(rootNote, 2000);
   }
 
   return (
@@ -61,9 +66,13 @@ export default function ChordCard({
       $fill={`linear-gradient(to bottom, ${baseColour}, ${lighten(0.1)(
         baseColour
       )})`}
+      $isActive={isActivelyPlaying}
       onMouseDown={() => handleMouseDown()}
     >
-      <StyledChordCard $hasDarkBackground={hasDarkBackground}>
+      <StyledChordCard
+        $hasDarkBackground={hasDarkBackground}
+        $isActive={isActivelyPlaying}
+      >
         {chord}
       </StyledChordCard>
     </BevelledContainer>

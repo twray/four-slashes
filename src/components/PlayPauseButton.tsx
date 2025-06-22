@@ -1,13 +1,16 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ComponentPropsWithoutRef,
+  MouseEvent,
+  type ReactNode,
+  useRef,
+  useState,
+} from "react";
 import { HiMiniPause, HiMiniPlay } from "react-icons/hi2";
 import styled, { css, keyframes } from "styled-components";
-import { useVirtualPiano } from "../context/VirtualPianoProvider";
-import { SequencerController } from "../hooks/useSequencer";
 
 type PlayPauseButtonProps = {
-  onPlay?: () => void;
-  onPause?: () => void;
-};
+  isPlaying: boolean;
+} & ComponentPropsWithoutRef<"button">;
 
 const pulseAnimation = keyframes`
   0% {
@@ -59,36 +62,16 @@ const StyledPlayIcon = styled(HiMiniPlay)`
 `;
 
 export default function PlayPauseButton({
-  onPlay,
-  onPause,
+  isPlaying = false,
+  onClick,
+  ...htmlButtonProps
 }: PlayPauseButtonProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationTimeoutRef = useRef<number | null>(null);
 
-  const { createSequenceWithNotation, virtualPianoIsReady } = useVirtualPiano();
-  const sequencerRef = useRef<SequencerController | null>(null);
-
-  useEffect(() => {
-    const sequence = createSequenceWithNotation(
-      "key=Eb bpm=120 autoSustain=on" +
-        "| :1 D-2_D-1_D_F_A | E-2_E-1_E_G_B | F-2_F-1_F_A_C+1 | G-2_G-1_G_B_D+1",
-      (event) => {
-        if (event.type === "sequenceEnd") {
-          setIsPlaying(false);
-        }
-        if (event.type === "barStart") {
-          console.log(`Bar ${event.barIndex + 1} started`);
-        }
-      }
-    );
-
-    sequencerRef.current = sequence;
-  }, [createSequenceWithNotation]);
-
-  function handleButtonClick() {
+  function handleButtonClick(event: MouseEvent<HTMLButtonElement>) {
     setIsAnimating(true);
-    setIsPlaying((prev) => !prev);
+    onClick?.(event);
 
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
@@ -98,21 +81,13 @@ export default function PlayPauseButton({
     setTimeout(() => {
       setIsAnimating(false);
     }, 300);
-
-    if (!isPlaying) {
-      sequencerRef.current?.playSequence();
-      onPlay?.();
-    } else {
-      sequencerRef.current?.pauseSequence();
-      onPause?.();
-    }
   }
 
   return (
     <StyledPlayPauseButton
       $isAnimating={isAnimating}
-      onClick={() => handleButtonClick()}
-      disabled={!virtualPianoIsReady}
+      onClick={handleButtonClick}
+      {...htmlButtonProps}
     >
       {!isPlaying ? <StyledPlayIcon /> : <HiMiniPause />}
     </StyledPlayPauseButton>

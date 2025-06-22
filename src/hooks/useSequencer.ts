@@ -96,7 +96,7 @@ type ActionGroup =
   | SustainPedalActionGroup
   | ControlActionGroup;
 
-type SequencedActionGroup = {
+export type SequencedActionGroup = {
   sequenceNumber?: number;
   barIndex: number;
   startTimeInSequenceInMs: number;
@@ -218,33 +218,6 @@ function getBarStartTimeInSequenceForNonLinearlySequencedActionGroupInBar(
 
   const quarterNoteDurationInMs = (60 / bpm) * 1000;
   return quarterNoteDurationInMs * (startPositionInBar - 1);
-}
-
-// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function __debug__logSequencedActions(
-  sequencedActionGroups: SequencedActionGroup[]
-) {
-  console.log(
-    `\n${sequencedActionGroups
-      .map(
-        ({ sequenceNumber, startTimeInSequenceInMs, actions, barIndex }) =>
-          `[${(sequenceNumber !== undefined
-            ? sequenceNumber.toString()
-            : "_"
-          ).padStart(2, " ")} B${barIndex} T: ${startTimeInSequenceInMs
-            .toString()
-            .padStart(4, " ")} (${actions
-            .map((action) =>
-              action.type === "note"
-                ? `${action.note.pitch}:${action.note.duration}${
-                    action.note.dotted ? "." : ""
-                  }`
-                : action.type
-            )
-            .join(", ")})]`
-      )
-      .join("\n")}`
-  );
 }
 
 export function useSequencer(): UseSequencerReturn {
@@ -527,8 +500,6 @@ export function useSequencer(): UseSequencerReturn {
     sequencedActionGroupsRef.current = sortedSequencedActionGroups;
     onEventRef.current = onEvent || null;
     sequencerHasBeenInitializedRef.current = true;
-
-    __debug__logSequencedActions(sortedSequencedActionGroups);
   }
 
   function initSequenceWithNotation(
@@ -966,7 +937,7 @@ export function useSequencer(): UseSequencerReturn {
       sequencedActionGroupsForFrame.forEach(
         ({ actions, sequenceNumber, startTimeInSequenceInMs, barIndex }) => {
           if (
-            currentSequenceBarIndexRef.current === null ||
+            !currentSequenceBarIndexRef.current ||
             barIndex > currentSequenceBarIndexRef.current
           ) {
             if (onEvent) {
