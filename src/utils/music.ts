@@ -1,10 +1,17 @@
+import {
+  Scale as ScaleUtil,
+  Note as NoteUtil,
+  Interval as IntervalUtil,
+} from "tonal"; // Importing Scale and Note from the Tonal library
+
 import pianoKeys from "../data/pianoKeys.json";
 
-type NoteLetter = "A" | "B" | "C" | "D" | "E" | "F" | "G";
-type Accidental = "#" | "b" | "n" | "";
-type Octave = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+export type NoteLetter = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+export type Accidental = "#" | "b" | "n" | "";
+export type Octave = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
 
 export type PianoKey = (typeof pianoKeys)[number];
+export type PitchClass = `${NoteLetter}${Accidental}`;
 export type Note = `${NoteLetter}${Accidental}${Octave}`;
 export type RelativeNote = `${NoteLetter}${Accidental}${"-" | "+" | ""}${
   | 1
@@ -55,8 +62,12 @@ export function isNote(note: string): note is Note {
   return regex.test(note);
 }
 
+export function isPianoNote(note: string): note is Note {
+  return isNote(note) && noteToPianoKey(note) !== undefined;
+}
+
 export function isRelativeNote(note: string): note is RelativeNote {
-  const regex = /^[A-G][#bn]?[-+]?[1-4]?$/;
+  const regex = /^[A-G][#bn]?([-+][1-4])?$/;
   return regex.test(note);
 }
 
@@ -271,4 +282,66 @@ export function adjustNotesToKeySignature(
     }
     return note;
   });
+}
+
+export function detectScalesForNotes(notes: Note[]): string[] {
+  const pitchClassesOfNotes = Array.from(
+    new Set(notes.map((note) => NoteUtil.get(note).pc))
+  );
+
+  console.log(pitchClassesOfNotes);
+
+  return [];
+}
+
+export function getNoteFromScaleDegreesDistanceFromReferenceNote(
+  referenceNote: string,
+  scaleDegreesDistance: number,
+  scaleName: string
+): string | undefined {
+  const scale = ScaleUtil.get(scaleName);
+  const scaleNotes = scale.notes;
+
+  const referencePitchClass = NoteUtil.get(referenceNote).pc;
+  const referenceOctave = NoteUtil.get(referenceNote).oct;
+
+  const referenceIndex = scaleNotes.findIndex(
+    (note) => NoteUtil.get(note).pc === referencePitchClass
+  );
+
+  if (referenceOctave === undefined || referenceIndex === -1) {
+    return undefined;
+  }
+
+  const targetIndex = referenceIndex + scaleDegreesDistance;
+
+  const octaveAdjustment = Math.floor(targetIndex / scaleNotes.length);
+  const normalizedIndex =
+    ((targetIndex % scaleNotes.length) + scaleNotes.length) % scaleNotes.length;
+
+  const targetPitchClass = scaleNotes[normalizedIndex];
+  const targetOctave = referenceOctave + octaveAdjustment;
+
+  return `${targetPitchClass}${targetOctave}`;
+}
+
+export function getDifferenceInPitchClasses(
+  pitchClass1: string,
+  pitchClass2: string
+): string | null {
+  const interval = IntervalUtil.distance(pitchClass1, pitchClass2);
+  const reverseInterval = IntervalUtil.distance(pitchClass2, pitchClass1);
+
+  if (!interval || !reverseInterval) {
+    return null;
+  }
+
+  const shortestNoteDistance = Math.min(
+    IntervalUtil.num(interval),
+    IntervalUtil.num(reverseInterval)
+  );
+
+  return IntervalUtil.num(interval) === shortestNoteDistance
+    ? interval
+    : `-${reverseInterval}`;
 }

@@ -1,11 +1,16 @@
-import styled from "styled-components";
-import ChordCard from "./ChordCard";
-import PlayPauseButton from "./PlayPauseButton";
-import VirtualKeyboard from "./VirtualKeyboard";
 import { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 import { useVirtualPiano } from "../context/VirtualPianoProvider";
 import { SequencerController } from "../hooks/useSequencer";
 import { ChordFunction } from "../types";
+import {
+  Chord,
+  generateArrangementAsNotationForChords,
+  isChord,
+} from "../utils/chord";
+import ChordCard from "./ChordCard";
+import PlayPauseButton from "./PlayPauseButton";
+import VirtualKeyboard from "./VirtualKeyboard";
 
 const Chords = styled.div`
   display: flex;
@@ -19,12 +24,12 @@ const Controls = styled.div`
   gap: 2rem;
 `;
 
-const chords = [
-  { chord: "Dm", chordFunction: "subdominant" },
-  { chord: "Em", chordFunction: "subdominant" },
-  { chord: "F", chordFunction: "subdominant" },
-  { chord: "G", chordFunction: "dominant" },
-];
+const chordsBase = ["Am", "G", "D", "E7"];
+
+const chords = chordsBase.map((chord, index) => ({
+  chord,
+  chordFunction: (index - 2) % 3 ? "dominant" : "subdominant",
+}));
 
 export default function ChordPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -34,10 +39,24 @@ export default function ChordPlayer() {
   const { createSequenceWithNotation, virtualPianoIsReady } = useVirtualPiano();
   const sequencerRef = useRef<SequencerController | null>(null);
 
+  // TODO: Add runs and enclosures for leading notes
+  // Add glissandro effects, arpeggio runs for final tonic chord
+
   useEffect(() => {
+    chords.forEach(({ chord }) => {
+      if (!isChord(chord)) {
+        console.warn(`Chord "${chord}" is not a supported chord.`);
+      }
+    });
+
+    const chordsAsNotation = generateArrangementAsNotationForChords(
+      chords
+        .filter(({ chord }) => isChord(chord))
+        .map(({ chord }) => chord) as Chord[]
+    );
+
     const sequence = createSequenceWithNotation(
-      "key=Eb bpm=120 autoSustain=on" +
-        "| :1 D-2_D-1_D_F_A | E-2_E-1_E_G_B | F-2_F-1_F_A_C+1 | G-2_G-1_G_B_D+1",
+      "bpm=120 autoSustain=on" + `| ${chordsAsNotation}`,
       (event) => {
         if (event.type === "sequenceEnd") {
           setIsPlaying(false);
@@ -69,7 +88,7 @@ export default function ChordPlayer() {
       <Chords>
         {chords.map(({ chord, chordFunction }, index) => (
           <ChordCard
-            key={chord}
+            key={`chord-${index}`}
             chord={chord}
             chordFunction={chordFunction as ChordFunction}
             isActivelyPlaying={isPlaying && indexOfActiveChord === index}
