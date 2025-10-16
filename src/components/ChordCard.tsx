@@ -18,13 +18,13 @@ type StyledChordCardProps = {
 };
 
 const StyledChordCard = styled.div<StyledChordCardProps>`
-  width: 200px;
-  height: 200px;
+  width: 15rem;
+  height: 15rem;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  font-size: 2rem;
+  font-size: 2.4rem;
   color: ${({ $hasDarkBackground }) =>
     $hasDarkBackground ? "#eeeeee" : "#666666"};
 `;
