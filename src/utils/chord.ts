@@ -94,17 +94,12 @@ export function generateArrangementAsNotationForChords(
       | PitchClass
       | undefined;
 
-    const minOctaveInVoicing = Math.min(
-      ...currentVoicing
-        .map((note) => NoteUtil.get(note).oct)
-        .filter((octaveNumberInVoicing) => octaveNumberInVoicing !== undefined)
-    );
+    const octaveNumbersInVoicing = currentVoicing
+      .map((note) => NoteUtil.get(note).oct)
+      .filter((octaveNumberInVoicing) => octaveNumberInVoicing !== undefined);
 
-    const maxOctaveInVoicing = Math.max(
-      ...currentVoicing
-        .map((note) => NoteUtil.get(note).oct)
-        .filter((octaveNumberInVoicing) => octaveNumberInVoicing !== undefined)
-    );
+    const minOctaveInVoicing = Math.min(...octaveNumbersInVoicing);
+    const maxOctaveInVoicing = Math.max(...octaveNumbersInVoicing);
 
     const bassVoicingAsStrings = bassNote
       ? [
@@ -184,8 +179,8 @@ export function generateArrangementAsNotationForChords(
 
         // - At later stages, try experimenting with the directionality
         //   of the enclosure
-        // - Sense if the tonids of the chords are ascending or descending:
-        //   in such cases, create runs instead of enclosures, based on
+        // - Sense if the tonics of the chords are ascending or descending:
+        //   in such cases, create leading tones instead of enclosures, based on
         //   direction
 
         if (!nextChordHas7th && leadingNotesOfNextChord.length > 0) {
