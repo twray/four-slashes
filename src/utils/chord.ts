@@ -51,6 +51,13 @@ export type Chord = `
   ${PitchClass | ""}
 `;
 
+export type ChordFunction = "subdominant" | "dominant" | "tonic";
+
+export type ChordWithFunction = {
+  chord: Chord;
+  chordFunction: ChordFunction;
+};
+
 export function isChord(value: string): value is Chord {
   const regex =
     /^[A-G][#b]?(M|m|o|aug|m7|7|maj7|\^7|m9|9|maj9|\^9|69|m7b5|7b9|7b13|o7|7#11|7#9|mM7|m9b5|9b9|9b13|o9|9#11|9#9|mM9|m6)?(\/[A-G][#b]?)?$/;

@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
+import { ComponentPropsWithRef, useEffect, useRef } from "react";
 import { CgPiano } from "react-icons/cg";
 import styled from "styled-components";
 import { useVirtualPiano } from "../context/VirtualPianoProvider";
-import { isValidPianoKey } from "../utils/music";
+import { isValidPianoKey, Note } from "../utils/music";
 
-const StyledVirtualKeyboard = styled.div`
+type VirtualKeyboardProps = ComponentPropsWithRef<"button">;
+
+const StyledVirtualKeyboard = styled.button`
   -webkit-tap-highlight-color: transparent;
   width: 4rem;
   height: 4rem;
@@ -15,6 +17,9 @@ const StyledVirtualKeyboard = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  &:disabled {
+    opacity: 0.5;
+  }
   & > svg {
     width: 2rem;
     height: 2rem;
@@ -43,7 +48,9 @@ const keyboardMappingsToVirtualKeyboard = {
   "/": "C5",
 };
 
-export default function VirtualKeyboard() {
+export default function VirtualKeyboard({
+  ...htmlButtonProps
+}: VirtualKeyboardProps) {
   const { keyUp, keyDown, sustainPedalUp, sustainPedalDown } =
     useVirtualPiano();
 
@@ -51,9 +58,9 @@ export default function VirtualKeyboard() {
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent, direction: "up" | "down") => {
-      const pressedKeys = pressedKeysRef.current;
+      if (htmlButtonProps.disabled) return;
 
-      event.preventDefault();
+      const pressedKeys = pressedKeysRef.current;
 
       const upperCaseKey =
         event.key.toUpperCase() as keyof typeof keyboardMappingsToVirtualKeyboard;
@@ -78,7 +85,7 @@ export default function VirtualKeyboard() {
       ) {
         const note = keyboardMappingsToVirtualKeyboard[upperCaseKey];
         if (isValidPianoKey(note)) {
-          keyDirectionsAndVirtualPianoFunctions.key[direction](note);
+          keyDirectionsAndVirtualPianoFunctions.key[direction](note as Note);
         }
       }
     };
@@ -101,7 +108,7 @@ export default function VirtualKeyboard() {
   });
 
   return (
-    <StyledVirtualKeyboard>
+    <StyledVirtualKeyboard {...htmlButtonProps}>
       <CgPiano />
     </StyledVirtualKeyboard>
   );

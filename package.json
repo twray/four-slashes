@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "howler": "^2.2.4",
+    "openai": "^6.4.0",
     "polished": "^4.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
